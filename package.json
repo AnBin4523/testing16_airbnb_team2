@@ -1,0 +1,19 @@
+{
+  "name": "testing16_airbnb_team2",
+  "version": "1.0.0",
+  "description": "Playwright TypeScript test automation for Airbnb clone (demo5.cybersoft.edu.vn)",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:ui": "npx playwright test tests/ui",
+    "report": "npx playwright show-report"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.47.0",
+    "@types/node": "^22.5.0",
+    "typescript": "^5.5.4"
+  }
+}
