@@ -2,6 +2,7 @@ import {BasePage} from "../BasePage";
 import {Locator, Page} from "@playwright/test";
 import {highlight} from "../utils/highlight";
 import {TimeOutConstant} from "../../constants/TimeOutConstant";
+
 export class SearchComponent extends BasePage {
 
     readonly locationField: Locator;
@@ -13,10 +14,13 @@ export class SearchComponent extends BasePage {
     
 
   readonly dateField: Locator;
+
   readonly guestField: Locator;
   readonly increaseBtn: Locator;
   readonly decreaseBtn: Locator;
+
   readonly searchBtn: Locator;
+
   readonly monthPicker: Locator;
   readonly yearPicker: Locator;
 
@@ -235,6 +239,7 @@ async enterDaysStartingToday(
     }
 
     for (let i = 1; i < count; i++) {
+      await highlight(this.increaseBtn);
       await this.increaseBtn.click({ timeout });
     }
   }
@@ -245,19 +250,24 @@ async enterDaysStartingToday(
     }
 
     for (let i = 1; i <= count; i++) {
+      await highlight(this.decreaseBtn);
       await this.decreaseBtn.click({ timeout });
     }
   }
 
   async isDecreaseButtonDisabled(): Promise<boolean> {
     return this.decreaseBtn.isDisabled();
-  }
+}
 
-  async getGuestCount(): Promise<number> {
-    const text = await this.page.locator("(//div[@class='text-md'])[2]").textContent();
+async getGuestCount(): Promise<number> {
+    const guestCount = this.page.locator("(//div[@class='text-md'])[2]");
+
+    await highlight(guestCount);
+
+    const text = await guestCount.textContent();
+
     return Number.parseInt((text ?? '').trim(), 10) || 0;
-  }
-
+}
   async submitSearch(timeout: number = TimeOutConstant.MEDIUM): Promise<void> {
     await highlight(this.searchBtn);
     await this.searchBtn.click({ timeout });

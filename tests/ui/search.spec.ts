@@ -209,8 +209,11 @@ test("TC05: Verify Logic Sidebar - Days Starting Today", async ({ homePage }) =>
     // await story('Advanced Search Function');
 
     await homePage.search.openGuestPicker();
+
+    const guestCount = await homePage.search.getGuestCount();
     const isDisabled = await homePage.search.isDecreaseButtonDisabled();
 
+    expect(guestCount).toBe(1);
     expect(isDisabled).toBeTruthy();
   });
 
