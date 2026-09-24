@@ -109,13 +109,6 @@ export class SearchComponent extends BasePage {
         });
     }
 
-//     async isLocationSelected(location: string): Promise<boolean> {
-//       await highlight(this.locationContainer)
-//     return await this.locationContainer
-//         .filter({ hasText: location })
-//         .isVisible();
-// }
-
   async openDatePicker(timeout: number = TimeOutConstant.MEDIUM): Promise<void> {
     await highlight(this.dateField);
     await this.dateField.click({ timeout });
@@ -134,26 +127,8 @@ export class SearchComponent extends BasePage {
         `[.//span[@class='rdrDayNumber']/span[text()='${normalizedDay}']]`
         )
     }
-  
 
-async isDateDisabled(
-    date: string,
-    panelIndex: number = 3,
-    timeOut: number = TimeOutConstant.MEDIUM
-): Promise<boolean> {
-    const dateLocator = this.getDayLocatorByPanel(date, panelIndex)
-    await dateLocator.waitFor({ state: 'visible', timeout: timeOut })
 
-    const classAttr = await dateLocator.getAttribute('class')
-    return classAttr?.includes('rdrDayDisabled') ?? false
-}
-
-// Kiểm tra 1 ngày cụ thể có đang được highlight/selected hay không
-// async isDateSelected(date: string, panelIndex: number = 3): Promise<boolean> {
-//     const dayLocator = this.getDayLocatorByPanel(date, panelIndex)
-//     const classAttr = await dayLocator.getAttribute('class')
-//     return classAttr?.includes('rdrSelected') ?? false
-// }
 
   async selectCheckInDate(
     checkInDate: string,
@@ -174,19 +149,20 @@ async isDateDisabled(
     checkOutDate: string,
     checkOutMonth: string,
     checkOutYear: string,
-    checkInMonth: string,
-    checkInYear: string,
+    // // checkInMonth: string,
+    // checkInYear: string,
     timeout: number = TimeOutConstant.MEDIUM
   ): Promise<void> {
+     await this.yearPicker.selectOption(checkOutYear, { timeout });
     await this.monthPicker.selectOption(checkOutMonth, { timeout });
-    await this.yearPicker.selectOption(checkOutYear, { timeout });
 
-    let panelIndex = 5;
-    if (checkInMonth === checkOutMonth && checkInYear === checkOutYear) {
-      panelIndex = 3;
-    }
 
-    const day = this.getDayLocatorByPanel(checkOutDate, panelIndex);
+    // let panelIndex = 5;
+    // if (checkInYear === checkOutYear) {
+    //   panelIndex = 3;
+
+    // }
+    const day = this.getDayLocatorByPanel(checkOutDate, 3);
     await day.waitFor({ state: 'visible', timeout });
     await highlight(day);
     await day.click({ timeout });
@@ -202,8 +178,20 @@ async isDateDisabled(
     timeout: number = TimeOutConstant.MEDIUM
   ): Promise<void> {
     await this.selectCheckInDate(checkInDate, checkInMonth, checkInYear, timeout);
-    await this.selectCheckOutDate(checkOutDate, checkOutMonth, checkOutYear, checkInMonth, checkInYear, timeout);
+    await this.selectCheckOutDate(checkOutDate, checkOutMonth, checkOutYear, timeout);
   }
+
+  async isDateDisabled(
+    date: string,
+    panelIndex: number = 3,
+    timeOut: number = TimeOutConstant.MEDIUM
+): Promise<boolean> {
+    const dateLocator = this.getDayLocatorByPanel(date, panelIndex)
+    await dateLocator.waitFor({ state: 'visible', timeout: timeOut })
+
+    const classAttr = await dateLocator.getAttribute('class')
+    return classAttr?.includes('rdrDayDisabled') ?? false
+}
 
   async selectToday(
     timeout: number = TimeOutConstant.MEDIUM
@@ -230,24 +218,10 @@ async enterDaysStartingToday(
     if (days < 1) {
         throw new Error("Số ngày phải >= 1");
     }
-     console.log(
-        "Input count:",
-        await this.daysStartingTodayInput.count()
-    );
-
-    console.log(
-        "Input value before:",
-        await this.daysStartingTodayInput.inputValue()
-    );
 
     await highlight(this.daysStartingTodayInput)
 
     await this.daysStartingTodayInput.fill(String(days));
-
-    console.log(
-        "Input value after:",
-        await this.daysStartingTodayInput.inputValue()
-    );
 }
 
   async openGuestPicker(timeout: number = TimeOutConstant.MEDIUM): Promise<void> {
