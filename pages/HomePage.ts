@@ -1,9 +1,14 @@
 import { Page, Locator } from '@playwright/test';
 import { CommonPage } from './CommonPage';
 import { HeaderComponent } from './components/HeaderComponent';
+import { SearchComponent } from './components/SearchComponent';
 
 export class HomePage extends CommonPage {
   readonly header: HeaderComponent;
+
+  readonly search: SearchComponent
+
+
   readonly bannerHeading: Locator;
   readonly locationCards: Locator;
   readonly locationLabel: Locator;
@@ -11,6 +16,7 @@ export class HomePage extends CommonPage {
 
   constructor(page: Page) {
     super(page);
+    this.search = new SearchComponent(page);
     this.header = new HeaderComponent(page);
     this.bannerHeading = page.getByRole('heading', { name: 'Cyberbnb', level: 2 });
     this.locationCards = page.locator('a[href^="/rooms/"]');
