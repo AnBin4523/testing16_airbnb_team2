@@ -1,13 +1,15 @@
 {
-  "name": "automationtesting_playwright",
+  "name": "atesting16_airbnb_team2",
   "version": "1.0.0",
-  "description": "",
+  "description": "Playwright TypeScript test automation for Airbnb clone (demo5.cybersoft.edu.vn)",
   "main": "index.js",
   "directories": {
     "test": "tests"
   },
   "scripts": {
     "test": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:ui": "npx playwright test tests/ui",
     "report": "npx playwright show-report"
   },
   "repository": {
@@ -23,6 +25,8 @@
   },
   "homepage": "https://github.com/AnBin4523/testing16_airbnb_team2#readme",
   "devDependencies": {
-    "@playwright/test": "^1.63.0"
+    "@playwright/test": "^1.47.0",
+    "@types/node": "^22.5.0",
+    "typescript": "^5.5.4"
   }
 }
