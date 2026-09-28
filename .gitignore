@@ -40,4 +40,7 @@ build/
 node_modules/
 playwright-report/
 test-results/
-.idea/
+blob-report/
+playwright/.cache/
+.env
+*.log
