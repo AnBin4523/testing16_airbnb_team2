@@ -9,8 +9,6 @@ export class SearchComponent extends BasePage {
 
      readonly locationDropdown: Locator;
     readonly locationOptions: Locator;
-
-    // readonly selectedLocation: Locator;
     
 
   readonly dateField: Locator;
@@ -40,11 +38,6 @@ export class SearchComponent extends BasePage {
         this.locationOptions = this.locationDropdown.locator(
             "div.cursor-pointer:has(p)"
         );
-
-//         this.selectedLocation = page.locator(
-//           // p.text-sm.font-bold
-//     "//div[contains(@class,'cursor-pointer')][.//p[contains(@class,'text-sm') and contains(@class,'font-bold')]]//p[contains(@class,'text-sm') and contains(@class,'font-bold')]"
-// );
 
 
 
@@ -81,14 +74,6 @@ export class SearchComponent extends BasePage {
         ).map(text => text.trim());
     }
 
-
-
-  // async selectLocation(location: string, timeout: number = TimeOutConstant.MEDIUM): Promise<void> {
-  //   const option = this.page.locator(`text=${location}`).first();
-  //   await option.waitFor({ state: 'visible', timeout });
-  //   await highlight(option);
-  //   await option.click({ timeout });
-  // }
 
   async selectLocation(
         location: string,
@@ -140,8 +125,8 @@ export class SearchComponent extends BasePage {
     checkInYear: string,
     timeout: number = TimeOutConstant.MEDIUM
   ): Promise<void> {
-    await this.monthPicker.selectOption(checkInMonth, { timeout });
     await this.yearPicker.selectOption(checkInYear, { timeout });
+    await this.monthPicker.selectOption(checkInMonth, { timeout });
 
     const day = this.getDayLocatorByPanel(checkInDate, 3);
     await day.waitFor({ state: 'visible', timeout });
@@ -187,11 +172,20 @@ export class SearchComponent extends BasePage {
 
   async isDateDisabled(
     date: string,
+    month: string,
+    year: string,
     panelIndex: number = 3,
     timeOut: number = TimeOutConstant.MEDIUM
 ): Promise<boolean> {
+
+   await this.yearPicker.selectOption(year, { timeout: timeOut });
+   await this.monthPicker.selectOption(month, { timeout: timeOut });
+
+   
     const dateLocator = this.getDayLocatorByPanel(date, panelIndex)
     await dateLocator.waitFor({ state: 'visible', timeout: timeOut })
+
+    await highlight(dateLocator)
 
     const classAttr = await dateLocator.getAttribute('class')
     return classAttr?.includes('rdrDayDisabled') ?? false

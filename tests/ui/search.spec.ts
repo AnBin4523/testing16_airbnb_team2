@@ -89,10 +89,6 @@ await expect(homePage.search.locationField)
     // Bước 2: click "Today" trên Sidebar
     await homePage.search.selectToday()
 
-    // // Expected 1: ngày hôm nay được highlight trên lịch
-    // const isTodaySelected = await homePage.search.isDateSelected(todayDate, 3)
-    // expect(isTodaySelected).toBeTruthy()
-
     // Expected 2: trường Thời gian cập nhật đúng "hôm nay – hôm nay"
     const dateFieldText = await homePage.search.getDateFieldText()
     expect(dateFieldText).toContain(expectedDateStr)
@@ -183,25 +179,35 @@ test("TC05: Verify Logic Sidebar - Days Starting Today", async ({ homePage }) =>
     expect(text).toContain(formatDate(checkOut));
   });
 
-  test('TC07: Verify the check-in date is greater than the check-out date', async ({ homePage }) => {
+  test('TC07: Verify days before the selected check-in date are disabled', async ({ homePage }) => {
     // await story('Advanced Search Function');
 
     await homePage.search.openDatePicker();
-    await homePage.search.selectCheckInDate('30', '8', '2026');
+    await homePage.search.selectCheckInDate('19', '10', '2026');
 
-    const disabled = await homePage.search.isDateDisabled('29', 3);
+    const disabled = await homePage.search.isDateDisabled('18','10','2026');
     expect(disabled).toBeTruthy();
   });
 
   test('TC08: Verify past dates are disabled on the calendar', async ({ homePage }) => {
     // await story('Advanced Search Function');
 
-    const today = new Date()
-    const dateCheckIn = today.getDate().toString()
-    const dateDisabled = (parseInt(dateCheckIn) - 1).toString()
+   const today = new Date();
+
+const yesterday = new Date(today);
+yesterday.setDate(today.getDate() - 1);
+
+const dateDisabled = String(yesterday.getDate());
+    const monthDisabled = String(yesterday.getMonth());
+    const yearDisabled = String(yesterday.getFullYear());
 
     await homePage.search.openDatePicker();
-    const isPastDateDisabled = await homePage.search.isDateDisabled(dateDisabled, 3)
+    
+    const isPastDateDisabled = await homePage.search.isDateDisabled(
+      dateDisabled,
+      monthDisabled,
+      yearDisabled
+    )
     expect(isPastDateDisabled).toBeTruthy()
   });
 

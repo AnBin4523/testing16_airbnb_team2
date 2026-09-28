@@ -6,14 +6,14 @@ import { SearchComponent } from "./components/SearchComponent";
 
 export class ResultPage extends CommonPage{
     // thuộc tính
-    private resultInfo: Locator
-    private roomCards: Locator
+    readonly resultInfo: Locator
+    readonly roomCards: Locator
     readonly search: SearchComponent
     constructor(page: Page){
         super(page)
          this.search = new SearchComponent(page);
         this.resultInfo = page.getByText(/Có \d+ chỗ ở tại/)
-        this.roomCards = page.locator("//div[contains(@class,'ant-card-hoverable')]")
+        this.roomCards = page.locator('a[href^="/room-detail/"] > div.ant-card')
     }
 
     // Phương thức
@@ -30,10 +30,12 @@ export class ResultPage extends CommonPage{
     }
 
     async getAllRoomCardTexts(TimeOut: number = TimeOutConstant.MEDIUM): Promise<string[]> {
+        await this.roomCards.first().waitFor({state: 'visible', timeout: TimeOut})
     return await this.roomCards.allTextContents()
 }
 
 async getAllRoomGuestCounts(TimeOut: number = TimeOutConstant.MEDIUM): Promise<number[]> {
+    await this.roomCards.first().waitFor({state: 'visible', timeout: TimeOut})
     const guestLocator = this.roomCards
         .locator("p.text-gray-500.text-md.truncate")
         .filter({ hasText: /\d+\s+khách/ })

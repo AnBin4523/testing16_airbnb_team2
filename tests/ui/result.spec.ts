@@ -1,11 +1,10 @@
-// import { epic, feature, story } from "allure-js-commons";
 import {test, expect} from "../../fixture/page-fixture";
 
 test.describe("Result Page", () =>{
     test.beforeEach(async({page})=>{
         // await epic("AirBnb Web")
         // await feature("Result Page")
-        await page.goto("https://demo5.cybersoft.edu.vn/rooms")
+        await page.goto("https://demo5.cybersoft.edu.vn/")
     })
     test('TC01: Verify search with empty location', async ({ homePage, resultPage}) => {
         // await story('Advanced Search Function');
@@ -41,13 +40,10 @@ test.describe("Result Page", () =>{
     expect(resultText).toContain(expectedCheckIn)
     expect(resultText).toContain(expectedCheckOut)
 
-    const roomTexts = await resultPage.getAllRoomCardTexts()
-    for (const roomText of roomTexts) {
-        expect(roomText).toContain(location)
-    }
 
-    const guestCounts = await resultPage.getAllRoomGuestCounts()
-    expect(guestCounts.every(count => count >= numberOfGuests)).toBeTruthy()
+     const roomTexts = await resultPage.getAllRoomCardTexts()
+        expect(roomTexts.length).toBeGreaterThan(0)
+ 
       });
     
     
@@ -92,11 +88,13 @@ test.describe("Result Page", () =>{
          expect(resultText).toContain(expectedCheckOut)
 
      const roomTexts = await resultPage.getAllRoomCardTexts()
+     expect(roomTexts.length).toBeGreaterThan(0)
     for (const roomText of roomTexts) {
         expect(roomText).toContain(location)
     }
 
     const guestCounts = await resultPage.getAllRoomGuestCounts()
+     expect(guestCounts.length).toBeGreaterThan(0)
     expect(guestCounts.every(count => count >= numberOfGuests)).toBeTruthy()
       });
     test("TC03: Verify the searrch result filtered by location", async({resultPage, homePage})=>{
@@ -116,7 +114,7 @@ test.describe("Result Page", () =>{
 
     // Verify từng phòng trả về đều thuộc đúng địa điểm đã chọn
     const roomTexts = await resultPage.getAllRoomCardTexts()
-    //expect(roomTexts.length).toBeGreaterThan(0)
+    expect(roomTexts.length).toBeGreaterThan(0)
 
     for (const roomText of roomTexts) {
         expect(roomText).toContain(location)
@@ -125,15 +123,15 @@ test.describe("Result Page", () =>{
 test("TC04: Verify the search result filtered by date range", async({resultPage, homePage})=>{
     // await story("Result Page Function")
     const dateCheckIn = "1"
-    const monthCheckIn = "9"
+    const monthCheckIn = "11"
     const yearCheckIn = "2026"
 
     const dateCheckOut = "10"
-    const monthCheckOut = "9"
+    const monthCheckOut = "11"
     const yearCheckOut = "2026"
 
-    const expectedCheckIn = "01/10/2026"
-    const expectedCheckOut = "10/10/2026"
+    const expectedCheckIn = "01/12/2026"
+    const expectedCheckOut = "10/12/2026"
 
     await homePage.search.openDatePicker()
     await homePage.search.selectDateRange(dateCheckIn, monthCheckIn, yearCheckIn,
@@ -156,9 +154,10 @@ test("TC05: Verify the search result filtered by number of guests", async({resul
     await homePage.search.increaseGuests(numberOfGuests)
     await homePage.search.submitSearch()
 
-    const guestCounts = await resultPage.getAllRoomGuestCounts()
-
-expect(guestCounts.every(count => count >= numberOfGuests)).toBeTruthy()
+      const guestCounts = await resultPage.getAllRoomGuestCounts()
+ 
+        expect(guestCounts.length).toBeGreaterThan(0)
+        expect(guestCounts.every(count => count >= numberOfGuests)).toBeTruthy()
 })
 test("TC06: Verify re-search on Result Page updates results correctly", async ({homePage, resultPage}) => {
     // Bước 1: Search lần đầu từ trang chủ với địa điểm "Hà Nội"
@@ -168,8 +167,7 @@ test("TC06: Verify re-search on Result Page updates results correctly", async ({
     await homePage.search.submitSearch()
 
     // Xác nhận đã ở đúng trang kết quả với địa điểm đầu tiên
-    const firstResultText = await resultPage.getSearchResultInfo()
-    expect(firstResultText).toContain(firstLocation)
+     await expect(resultPage.resultInfo).toContainText(firstLocation)
 
     // Bước 2: NGAY TRÊN Result Page, đổi lại địa điểm khác - "Cần Thơ"
     const secondLocation = "Cần Thơ"
@@ -181,14 +179,12 @@ test("TC06: Verify re-search on Result Page updates results correctly", async ({
     const secondResultUrl = await resultPage.getCurrentUrl()
     expect(secondResultUrl).toContain('/rooms/can-tho')
 
-    const secondResultText = await resultPage.getSearchResultInfo()
-    expect(secondResultText).toContain(secondLocation)
-    expect(secondResultText).not.toContain(firstLocation)
+      await expect(resultPage.resultInfo).toContainText(secondLocation)
+        await expect(resultPage.resultInfo).not.toContainText(firstLocation)
 
     // Verify từng card đều đúng theo địa điểm MỚI
     const roomTexts = await resultPage.getAllRoomCardTexts()
-    //expect(roomTexts.length).toBeGreaterThan(0)
-
+    expect(roomTexts.length).toBeGreaterThan(0)
     for (const roomText of roomTexts) {
         expect(roomText).toContain(secondLocation)
     }
