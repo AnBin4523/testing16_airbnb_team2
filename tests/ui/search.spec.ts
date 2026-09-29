@@ -20,7 +20,7 @@ test.describe('Home Page - Search', () => {
   test.beforeEach(async ({ page }) => {
     // await epic('AirBnb Web');
     // await feature('Home Page');
-    await page.goto('https://demo5.cybersoft.edu.vn/');
+    await page.goto('/');
   });
    test("TC01: Verify location dropdown", async ({ homePage }) => {
     // await story("Advanced Search Function")
@@ -104,7 +104,9 @@ test("TC03: Verify Logic Sidebar - 'This Week'", async ({ homePage }) => {
     const expectedCheckIn = formatDate(today);
 
     const endOfWeek = new Date(today)
-    endOfWeek.setDate(today.getDate() + (7 - today.getDay()))
+
+    const daysUntilSunday = today.getDay() === 0 ? 0 : 7 - today.getDay();
+    endOfWeek.setDate( today.getDate() + daysUntilSunday)
 
    const expectedCheckOut = formatDate(endOfWeek);
 
@@ -181,11 +183,22 @@ test("TC05: Verify Logic Sidebar - Days Starting Today", async ({ homePage }) =>
 
   test('TC07: Verify days before the selected check-in date are disabled', async ({ homePage }) => {
     // await story('Advanced Search Function');
+    const checkIn = new Date()
+    checkIn.setDate(checkIn.getDate()+ 30)
+
+    const dayBefore = new Date(checkIn)
+    dayBefore.setDate(dayBefore.getDate()-1)
 
     await homePage.search.openDatePicker();
-    await homePage.search.selectCheckInDate('19', '10', '2026');
+    await homePage.search.selectCheckInDate( 
+      String(checkIn.getDate()),
+        String(checkIn.getMonth()),
+        String(checkIn.getFullYear()));
 
-    const disabled = await homePage.search.isDateDisabled('18','10','2026');
+    const disabled = await homePage.search.isDateDisabled( 
+    String(dayBefore.getDate()),
+        String(dayBefore.getMonth()),
+        String(dayBefore.getFullYear()));
     expect(disabled).toBeTruthy();
   });
 
