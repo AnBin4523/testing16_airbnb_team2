@@ -1,37 +1,31 @@
+/// <reference types="node" />
+
 import { defineConfig, devices } from '@playwright/test';
-import { TimeOutConstant } from './constants/TimeOutConstant';
 
 export default defineConfig({
   testDir: './tests',
-  timeout: TimeOutConstant.TEST_TIMEOUT,
-  expect: {
-    timeout: TimeOutConstant.EXPECT_TIMEOUT,
-  },
+  timeout: 30_000,
+  expect: { timeout: 7_000 },
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: [['html', { open: 'never' }], ['list']],
-  use: {
-    baseURL: 'https://demo5.cybersoft.edu.vn/',
-    actionTimeout: TimeOutConstant.ACTION_TIMEOUT,
-    navigationTimeout: TimeOutConstant.NAVIGATION_TIMEOUT,
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
-  },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+  retries: process.env.CI ? 1 : 0,
+  workers: process.env.CI ? 2 : undefined,
+
+  // BÁO CÁO: console (list) + HTML + JSON + JUnit (CI đọc được)
+  reporter: [
+    ['list'],
+    ['html', { outputFolder: 'playwright-report', open: 'never' }],
+    ['json', { outputFile: 'test-results/results.json' }],
+    ['junit', { outputFile: 'test-results/junit.xml' }],
   ],
+
+  use: {
+    baseURL: 'https://demo5.cybersoft.edu.vn',
+    screenshot: 'only-on-failure', // SCREENSHOT khi fail
+    video: 'retain-on-failure',    // video khi fail
+    trace: 'retain-on-failure',    // trace (log từng bước + network + DOM) khi fail
+    actionTimeout: 10_000,
+  },
+
+  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
 });

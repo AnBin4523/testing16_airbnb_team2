@@ -1,28 +1,20 @@
 {
-  "name": "automationtesting_playwright",
+  "name": "testing16_airbnb_team2",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
+  "description": "Playwright TypeScript test automation for Airbnb clone (demo5.cybersoft.edu.vn)",
   "scripts": {
     "test": "npx playwright test",
-    "report": "npx playwright show-report"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/AnBin4523/testing16_airbnb_team2.git"
+    "test:headed": "npx playwright test --headed",
+    "test:ui": "npx playwright test tests/ui",
+    "report": "npx playwright show-report",
+    "test:your-script": "..."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/AnBin4523/testing16_airbnb_team2/issues"
-  },
-  "homepage": "https://github.com/AnBin4523/testing16_airbnb_team2#readme",
   "devDependencies": {
-    "@playwright/test": "^1.63.0"
+    "@playwright/test": "^1.47.0",
+    "@types/node": "^22.20.4",
+    "typescript": "^5.5.4"
   }
 }
