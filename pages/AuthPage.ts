@@ -107,8 +107,9 @@ export class AuthPage extends BasePage {
 
   async selectBirthday(day: string) {
     await this.click(this.birthdayField);
-    await this.click(this.page.getByText(day, { exact: true }));
-    this.page.locator('.ant-picker-dropdown .ant-picker-cell-in-view').getByText(day, { exact: true })
+    await this.click(
+      this.page.locator('.ant-picker-dropdown .ant-picker-cell-in-view').getByText(day, { exact: true })
+    );
   }
   async register(
     name: string,

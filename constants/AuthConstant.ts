@@ -8,7 +8,7 @@ export const AuthConstant = {
     REQUIRED: 'Vui lòng không bỏ trống',
     BIRTHDAY_REQUIRED: 'Vui lòng chọn ngày sinh',
     LOGIN_FAILED: 'Email hoặc mật khẩu không đúng',
-    EMAIL_EXISTED: /đã được đăng ký/i,
+    EMAIL_EXISTED: /Email đã tồn tại/i,
   },
 };
 

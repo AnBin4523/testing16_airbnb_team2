@@ -52,10 +52,7 @@ test.describe('Đăng ký & Đăng nhập - Cybersoft Demo5', () => {
       'RG-04: Name chỉ chứa khoảng trắng',
       { tag: ['@known-bug', '@demo-fail'] },
       async ({ authPage }) => {
-        test.info().annotations.push({
-          type: 'bug',
-          description: 'RG-04 (High): Name = " " vẫn tạo tài khoản thành công.',
-        });
+        test.fail(true, 'BUG RG-04 (High): Name = " " vẫn tạo tài khoản thành công.');
 
         await authPage.register(' ', uniqueEmail(), PASSWORD_VALID, uniquePhone());
 
@@ -68,10 +65,7 @@ test.describe('Đăng ký & Đăng nhập - Cybersoft Demo5', () => {
       'RG-05: Email sai định dạng',
       { tag: ['@known-bug', '@demo-fail'] },
       async ({ authPage }) => {
-        test.info().annotations.push({
-          type: 'bug',
-          description: 'RG-05 (High): Email "abc@gmail" vẫn đăng ký thành công.',
-        });
+        test.fail(true, 'BUG RG-05 (High): Email "abc@gmail" vẫn đăng ký thành công.');
 
         await authPage.register('Test User', 'abc@gmail', PASSWORD_VALID, uniquePhone());
 
@@ -91,10 +85,7 @@ test.describe('Đăng ký & Đăng nhập - Cybersoft Demo5', () => {
       'RG-07: Password ngắn hơn 8 ký tự',
       { tag: ['@known-bug', '@demo-fail'] },
       async ({ authPage }) => {
-        test.info().annotations.push({
-          type: 'bug',
-          description: 'RG-07 (High): Password "Aa@123" (< 8 ký tự) vẫn đăng ký thành công.',
-        });
+        test.fail(true, 'BUG RG-07 (High): Password "Aa@123" (< 8 ký tự) vẫn đăng ký thành công.');
 
         await authPage.register('Test User', uniqueEmail(), 'Aa@123', uniquePhone());
 
@@ -107,10 +98,7 @@ test.describe('Đăng ký & Đăng nhập - Cybersoft Demo5', () => {
       'RG-08: Password không chứa chữ hoa',
       { tag: ['@known-bug', '@demo-fail'] },
       async ({ authPage }) => {
-        test.info().annotations.push({
-          type: 'bug',
-          description: 'RG-08 (High): Password "test@1234" (không có chữ hoa) vẫn đăng ký thành công.',
-        });
+        test.fail(true, 'BUG RG-08 (High): Password "test@1234" (không có chữ hoa) vẫn đăng ký thành công.');
 
         await authPage.register('Test User', uniqueEmail(), 'test@1234', uniquePhone());
 
@@ -158,7 +146,14 @@ test.describe('Đăng ký & Đăng nhập - Cybersoft Demo5', () => {
     });
 
     test('LG-03: Đăng nhập thành công với tài khoản hợp lệ', async ({ authPage }) => {
-      await authPage.login(VALID_USER.email, VALID_USER.password);
+      // Tự tạo tài khoản mới để test không phụ thuộc vào tài khoản có sẵn / file .env
+      const email = uniqueEmail();
+      await authPage.register('Test User', email, PASSWORD_VALID, uniquePhone());
+      await expect(authPage.loginHeading).toBeVisible();
+
+      // Popup đăng ký cũ vẫn còn trong DOM -> mở lại trang để form đăng nhập không bị trùng input
+      await authPage.open();
+      await authPage.login(email, PASSWORD_VALID);
 
       // Popup tự đóng, icon tài khoản chuyển sang Avatar ("Open user menu <tên>")
       await expect(authPage.userAvatar).toBeVisible();
