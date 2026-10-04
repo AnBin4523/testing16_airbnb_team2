@@ -29,9 +29,16 @@ export default defineConfig({
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+    // WebKit on Linux rejects the demo server's weak TLS Diffie-Hellman key
+    // ("The Diffie-Hellman prime sent by the server is not acceptable"),
+    // so it only runs locally (Windows/macOS), not on CI (Ubuntu).
+    ...(process.env.CI
+      ? []
+      : [
+          {
+            name: 'webkit',
+            use: { ...devices['Desktop Safari'] },
+          },
+        ]),
   ],
 });
