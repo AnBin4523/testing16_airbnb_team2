@@ -6,15 +6,14 @@
     "test": "npx playwright test",
     "test:headed": "npx playwright test --headed",
     "test:ui": "npx playwright test tests/ui",
-    "report": "npx playwright show-report",
-    "test:your-script": "..."
+    "report": "npx playwright show-report"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@playwright/test": "^1.47.0",
-    "@types/node": "^22.20.4",
+    "@types/node": "^22.5.0",
     "typescript": "^5.5.4"
   }
 }

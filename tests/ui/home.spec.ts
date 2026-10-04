@@ -26,3 +26,7 @@ test.describe('Home page', () => {
     await expect(page).toHaveURL(/\/rooms\/ho-chi-minh/);
   });
 });
+
+
+
+
