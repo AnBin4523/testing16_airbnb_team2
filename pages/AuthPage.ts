@@ -105,17 +105,19 @@ export class AuthPage extends BasePage {
     return this.page.getByText(text).first();
   }
 
-  // Popup antd đôi khi không nhận click khi đang chạy animation -> chọn lại cho tới khi ô có giá trị
+  // Popup antd đôi khi không nhận click khi đang chạy animation -> chọn lại cho tới khi chọn được thật.
+  // Không chỉ kiểm tra value: khi rê chuột qua một ngày, antd hiện ngày đó vào ô input để xem trước
+  // dù chưa chọn. Chỉ khi chọn thật thì lịch mới đóng.
   async selectBirthday(day: string) {
-    const dayCell = this.page
-      .locator('.ant-picker-dropdown .ant-picker-cell-in-view')
-      .getByText(day, { exact: true });
+    const picker = this.page.locator('.ant-picker-dropdown');
+    const dayCell = picker.locator('.ant-picker-cell-in-view').getByText(day, { exact: true });
 
     await expect(async () => {
       if (!(await dayCell.isVisible())) {
         await this.birthdayField.click();
       }
       await dayCell.click({ timeout: TimeOutConstant.SHORT });
+      await expect(picker).toBeHidden({ timeout: TimeOutConstant.SHORT });
       await expect(this.birthdayField).not.toHaveValue('', { timeout: TimeOutConstant.SHORT });
     }).toPass({ timeout: TimeOutConstant.MEDIUM });
   }
