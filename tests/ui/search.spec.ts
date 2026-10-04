@@ -99,6 +99,7 @@ await expect(homePage.search.locationField)
 })
 
 test("TC03: Verify Logic Sidebar - 'This Week'", async ({ homePage }) => {
+    test.fail(true, "BUG (AC6): 'This Week' chọn Chủ nhật → Thứ 7 thay vì hôm nay → Chủ nhật")
     // await story('Advanced Search Function');
   const today = new Date();
     const expectedCheckIn = formatDate(today);
@@ -121,6 +122,7 @@ test("TC03: Verify Logic Sidebar - 'This Week'", async ({ homePage }) => {
     expect(dateFieldText).toBe(expectedFullRange)
 })
 test("TC04: Verify Logic Sidebar - 'This Month'", async ({ homePage }) => {
+    test.fail(true, "BUG (AC6): 'This Month' chọn từ ngày 1 thay vì từ hôm nay → cuối tháng")
     // await story('Advanced Search Function');
     const today = new Date();
     const expectedCheckIn = formatDate(today); 
@@ -182,6 +184,7 @@ test("TC05: Verify Logic Sidebar - Days Starting Today", async ({ homePage }) =>
   });
 
   test('TC07: Verify days before the selected check-in date are disabled', async ({ homePage }) => {
+    test.fail(true, 'BUG (AC7): Ngày trước check-in không bị disable, click vào sẽ đảo check-in/check-out')
     // await story('Advanced Search Function');
     const checkIn = new Date()
     checkIn.setDate(checkIn.getDate()+ 30)
