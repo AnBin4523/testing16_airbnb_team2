@@ -1,4 +1,4 @@
-import { Locator, Page, test } from '@playwright/test';
+import { Locator, Page, expect, test } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { TimeOutConstant } from '../constants/TimeOutConstant';
 
@@ -105,12 +105,35 @@ export class AuthPage extends BasePage {
     return this.page.getByText(text).first();
   }
 
+  // Popup antd đôi khi không nhận click khi đang chạy animation -> chọn lại cho tới khi ô có giá trị
   async selectBirthday(day: string) {
-    await this.click(this.birthdayField);
-    await this.click(
-      this.page.locator('.ant-picker-dropdown .ant-picker-cell-in-view').getByText(day, { exact: true })
-    );
+    const dayCell = this.page
+      .locator('.ant-picker-dropdown .ant-picker-cell-in-view')
+      .getByText(day, { exact: true });
+
+    await expect(async () => {
+      if (!(await dayCell.isVisible())) {
+        await this.birthdayField.click();
+      }
+      await dayCell.click({ timeout: TimeOutConstant.SHORT });
+      await expect(this.birthdayField).not.toHaveValue('', { timeout: TimeOutConstant.SHORT });
+    }).toPass({ timeout: TimeOutConstant.MEDIUM });
   }
+  // Dropdown Gender (antd) đôi khi không nhận click khi đang chạy animation (hay gặp trên Firefox)
+  // và vẫn mở, che nút Đăng ký -> chọn lại cho tới khi dropdown đóng.
+  async selectGender(gender: 'Nam' | 'Nữ') {
+    const dropdown = this.page.locator('.ant-select-dropdown');
+    const option = dropdown.locator(`.ant-select-item-option[title="${gender}"]`);
+
+    await expect(async () => {
+      if (!(await dropdown.isVisible())) {
+        await this.genderSelect.click();
+      }
+      await option.click({ timeout: TimeOutConstant.SHORT });
+      await expect(dropdown).toBeHidden({ timeout: TimeOutConstant.SHORT });
+    }).toPass({ timeout: TimeOutConstant.MEDIUM });
+  }
+
   async register(
     name: string,
     email: string,
@@ -127,8 +150,7 @@ export class AuthPage extends BasePage {
       await this.fill(this.passwordInput, pass);
       await this.fill(this.phoneInput, phone);
       await this.selectBirthday(birthdayDay);
-      await this.click(this.genderSelect);
-      await this.click(this.page.getByTitle(gender));
+      await this.selectGender(gender);
     });
 
     await test.step('Click nút Đăng ký', async () => {
