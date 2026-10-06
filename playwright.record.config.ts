@@ -18,8 +18,6 @@ export default defineConfig({
       show: {
         // Tên test + bước đang chạy ở góc trên trái
         test: { level: 'step', position: 'top-left', fontSize: 16 },
-        // Tên thao tác (click, fill...) + con trỏ chuột ở góc trên phải
-        actions: { duration: 800, position: 'top-right' },
       },
     },
     // Chạy chậm lại để người xem kịp theo dõi
