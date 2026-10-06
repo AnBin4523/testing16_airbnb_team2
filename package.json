@@ -6,7 +6,8 @@
     "test": "npx playwright test",
     "test:headed": "npx playwright test --headed",
     "test:ui": "npx playwright test tests/ui",
-    "report": "npx playwright show-report"
+    "report": "npx playwright show-report",
+    "test:record": "npx playwright test -c playwright.record.config.ts"
   },
   "keywords": [],
   "author": "",
