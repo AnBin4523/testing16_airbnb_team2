@@ -5,3 +5,5 @@ blob-report/
 playwright/.cache/
 .env
 *.log
+recordings/
+demo-video/
