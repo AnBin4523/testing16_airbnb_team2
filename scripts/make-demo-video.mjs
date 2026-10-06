@@ -10,7 +10,24 @@ const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 const INPUT_DIR = path.join(ROOT, 'recordings');
 const OUTPUT_DIR = path.join(ROOT, 'demo-video');
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'Automation-Test-Demo.mp4');
-const FFMPEG = process.env.FFMPEG_PATH || 'ffmpeg';
+const FFMPEG = process.env.FFMPEG_PATH || findWingetFfmpeg() || 'ffmpeg';
+
+// Trên Windows, ffmpeg cài bằng winget chỉ có trong PATH sau khi khởi động lại VS Code/terminal,
+// nên tìm thẳng trong thư mục cài đặt của winget.
+function findWingetFfmpeg() {
+  if (process.platform !== 'win32' || !process.env.LOCALAPPDATA) return null;
+  const links = path.join(process.env.LOCALAPPDATA, 'Microsoft', 'WinGet', 'Links', 'ffmpeg.exe');
+  if (fs.existsSync(links)) return links;
+  const packages = path.join(process.env.LOCALAPPDATA, 'Microsoft', 'WinGet', 'Packages');
+  if (!fs.existsSync(packages)) return null;
+  for (const pkg of fs.readdirSync(packages).filter((d) => d.startsWith('Gyan.FFmpeg'))) {
+    for (const build of fs.readdirSync(path.join(packages, pkg))) {
+      const exe = path.join(packages, pkg, build, 'bin', 'ffmpeg.exe');
+      if (fs.existsSync(exe)) return exe;
+    }
+  }
+  return null;
+}
 
 // Font có hỗ trợ tiếng Việt
 const FONT = process.platform === 'win32' ? 'C\\:/Windows/Fonts/segoeui.ttf' : '/System/Library/Fonts/Supplemental/Arial.ttf';
