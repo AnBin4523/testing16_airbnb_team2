@@ -75,12 +75,32 @@ export class UserInfoPage extends CommonPage {
   }
 
   async openFromUserMenu(): Promise<void> {
-    await this.click(this.userMenuBtn);
-    await this.click(this.dashboardLink);
+  await this.page.waitForLoadState('domcontentloaded');
 
-    await this.page.waitForURL('**/info-user');
-    await this.waitForVisible(this.bookedRoomsHeading);
-  }
+  await this.userMenuBtn.waitFor({
+    state: 'visible',
+    timeout: 15_000,
+  }).catch(async () => {
+    throw new Error(
+      `Không tìm thấy nút menu tài khoản. URL hiện tại: ${this.page.url()}`
+    );
+  });
+
+  await this.userMenuBtn.click();
+
+  await this.dashboardLink.waitFor({
+    state: 'visible',
+    timeout: 10_000,
+  });
+
+  await this.dashboardLink.click();
+
+  await this.page.waitForURL('**/info-user', {
+    timeout: 15_000,
+  });
+
+  await this.waitForVisible(this.bookedRoomsHeading);
+}
 
   async openEditProfile(): Promise<void> {
     await this.click(this.editProfileBtn);

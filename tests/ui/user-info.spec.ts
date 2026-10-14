@@ -23,42 +23,26 @@ test.describe('User Profile - Cybersoft Demo5', () => {
     console.log('TC22: Đã mở trang Profile thành công');
   });
 
- test('TC23: Mở form chỉnh sửa hồ sơ', async ({
+test('TC23: Mở form chỉnh sửa hồ sơ', async ({
   page,
   loggedInUser,
   userInfoPage,
 }) => {
+  console.log('URL trước khi mở menu:', page.url());
+  console.log('Title trang:', await page.title());
+
   await userInfoPage.openFromUserMenu();
-
-  
-console.log('URL hiện tại:', page.url());
-console.log('Title:', await page.title());
-
-console.log(
-  'Nút Cập nhật ảnh:',
-  await page.getByText('Cập nhật ảnh', { exact: true }).count()
-);
-
-console.log(
-  'Input file:',
-  await page.locator('input[type="file"]').count()
-);
-
-console.log(
-  'Các nút trên trang:',
-  await page.locator('button').allTextContents()
-);
-
-
-  await expect(userInfoPage.editProfileBtn).toBeVisible();
   await userInfoPage.openEditProfile();
 
-  await page.waitForTimeout(1000);
+  const name = await userInfoPage.editNameInput.inputValue();
+  const phone = await userInfoPage.editPhoneInput.inputValue();
 
-  await page.screenshot({
-    path: 'test-results/profile-edit-form.png',
-    fullPage: true,
-  });
+  console.log('Họ tên ban đầu:', name);
+  console.log('Số điện thoại ban đầu:', phone);
+
+  expect(name.trim().length).toBeGreaterThan(0);
+  expect(phone.trim().length).toBeGreaterThan(0);
+});
 });
  
 test('TC23: Cập nhật thông tin cá nhân thành công', async ({
@@ -66,20 +50,31 @@ test('TC23: Cập nhật thông tin cá nhân thành công', async ({
   loggedInUser,
   userInfoPage,
 }) => {
+  // Kiểm tra trang trước khi thao tác
+  console.log('URL trước khi mở hồ sơ:', page.url());
+  console.log('Tiêu đề trang:', await page.title());
+
+  // Mở trang thông tin cá nhân
   await userInfoPage.openFromUserMenu();
+
+  console.log('URL sau khi mở hồ sơ:', page.url());
+
+  // Mở form chỉnh sửa
   await userInfoPage.openEditProfile();
 
   const updatedName = 'Test User Updated';
   const updatedPhone = '0912345678';
 
+  // Cập nhật thông tin
   await userInfoPage.updateProfile({
     name: updatedName,
     phone: updatedPhone,
   });
 
-  // Kiểm tra giao diện sau khi cập nhật.
-  await expect(page.getByText(updatedName, { exact: false }).first())
-    .toBeVisible();
+  // Kiểm tra tên mới hiển thị
+  await expect(
+    page.getByText(updatedName, { exact: false }).first()
+  ).toBeVisible();
 });
 
 test('TC23.1: Cập nhật riêng họ tên', async ({
@@ -101,66 +96,73 @@ test('TC23.1: Cập nhật riêng họ tên', async ({
 });
 
 test('TC23.2: Cập nhật riêng số điện thoại', async ({
-  page,
-  loggedInUser,
-  userInfoPage,
+page,
+loggedInUser,
+userInfoPage,
 }) => {
-  await userInfoPage.openFromUserMenu();
-  await userInfoPage.openEditProfile();
+await userInfoPage.openFromUserMenu();
+await userInfoPage.openEditProfile();
 
-  const newPhone = '0987654321';
+const originalName = await userInfoPage.editNameInput.inputValue();
+const newPhone = '0909909990';
 
-  await userInfoPage.editPhoneInput.fill(newPhone);
-  await userInfoPage.updateProfileBtn.click();
+await userInfoPage.editPhoneInput.fill(newPhone);
+await userInfoPage.updateProfileBtn.click();
 
-  // Kiểm tra giao diện đã quay lại trạng thái hồ sơ.
-  await expect(userInfoPage.editProfileBtn).toBeVisible();
+// Xác nhận popup chỉnh sửa đã đóng.
+await expect(userInfoPage.editNameInput).toBeHidden();
+
+// Mở lại form để xác nhận dữ liệu đã lưu.
+await userInfoPage.openEditProfile();
+
+await expect(userInfoPage.editNameInput).toHaveValue(originalName);
+await expect(userInfoPage.editPhoneInput).toHaveValue(newPhone);
 });
 
 test('TC23.3: Kiểm tra khi để trống họ tên', async ({
-  page,
-  loggedInUser,
-  userInfoPage,
+page,
+loggedInUser,
+userInfoPage,
 }) => {
-  await userInfoPage.openFromUserMenu();
-  await userInfoPage.openEditProfile();
+await userInfoPage.openFromUserMenu();
+await userInfoPage.openEditProfile();
 
-  await userInfoPage.editNameInput.fill('');
-  await userInfoPage.updateProfileBtn.click();
+// Xóa họ tên
+await userInfoPage.editNameInput.fill('');
 
-  // Nếu họ tên bắt buộc, form phải giữ trạng thái chỉnh sửa
-  // hoặc hiển thị thông báo validation.
-  const stillEditing = await userInfoPage.editNameInput
-    .isVisible()
-    .catch(() => false);
+// Nhấn Cập nhật
+await userInfoPage.updateProfileBtn.click();
 
-  const invalid = await userInfoPage.editNameInput
-    .evaluate((el) => (el as HTMLInputElement).validity.valid)
-    .catch(() => true);
+// Xác nhận thông báo lỗi thực tế của website
+await expect(
+page.getByText('Vui lòng nhập họ tên!', { exact: true })
+).toBeVisible();
 
-  expect(stillEditing || !invalid).toBeTruthy();
+// Xác nhận form vẫn mở khi dữ liệu không hợp lệ
+await expect(userInfoPage.editNameInput).toBeVisible();
 });
 
 test('TC23.4: Kiểm tra khi để trống số điện thoại', async ({
-  page,
-  loggedInUser,
-  userInfoPage,
+page,
+loggedInUser,
+userInfoPage,
 }) => {
-  await userInfoPage.openFromUserMenu();
-  await userInfoPage.openEditProfile();
+await userInfoPage.openFromUserMenu();
+await userInfoPage.openEditProfile();
 
-  await userInfoPage.editPhoneInput.fill('');
-  await userInfoPage.updateProfileBtn.click();
+// Xóa số điện thoại
+await userInfoPage.editPhoneInput.fill('');
 
-  const stillEditing = await userInfoPage.editPhoneInput
-    .isVisible()
-    .catch(() => false);
+// Nhấn Cập nhật
+await userInfoPage.updateProfileBtn.click();
 
-  const invalid = await userInfoPage.editPhoneInput
-    .evaluate((el) => (el as HTMLInputElement).validity.valid)
-    .catch(() => true);
+// Kiểm tra đúng thông báo lỗi thực tế
+await expect(
+page.getByText('Vui lòng nhập số điện thoại!', { exact: true })
+).toBeVisible();
 
-  expect(stillEditing || !invalid).toBeTruthy();
+// Xác nhận form vẫn mở khi dữ liệu không hợp lệ
+await expect(userInfoPage.editPhoneInput).toBeVisible();
 });
 
 test('TC23.5: Cập nhật họ tên có dấu tiếng Việt', async ({
@@ -182,26 +184,28 @@ test('TC23.5: Cập nhật họ tên có dấu tiếng Việt', async ({
 });
 
 test('TC23.6: Kiểm tra số điện thoại chứa chữ cái', async ({
-  page,
-  loggedInUser,
-  userInfoPage,
+page,
+loggedInUser,
+userInfoPage,
 }) => {
-  await userInfoPage.openFromUserMenu();
-  await userInfoPage.openEditProfile();
+await userInfoPage.openFromUserMenu();
+await userInfoPage.openEditProfile();
 
-  await userInfoPage.editPhoneInput.fill('09ABC12345');
-  await userInfoPage.updateProfileBtn.click();
+await userInfoPage.editPhoneInput.fill('09ABC12345');
+await userInfoPage.updateProfileBtn.click();
 
-  // Kiểm tra ứng dụng có từ chối dữ liệu không hợp lệ.
-  const stillEditing = await userInfoPage.editPhoneInput
-    .isVisible()
-    .catch(() => false);
+console.log(
+'Giá trị số điện thoại sau khi cập nhật:',
+await userInfoPage.editPhoneInput.inputValue().catch(() => '(input đã đóng)')
+);
 
-  const value = await userInfoPage.editPhoneInput
-    .inputValue()
-    .catch(() => '');
+console.log(
+'Thông báo trên trang:',
+await page.locator('body').innerText()
+);
 
-  expect(stillEditing || value !== '09ABC12345').toBeTruthy();
+// Không cho phép form đóng nếu dữ liệu bị từ chối.
+await expect(userInfoPage.editPhoneInput).toBeVisible();
 });
 
 test('TC23.7: Kiểm tra số điện thoại quá ngắn', async ({
@@ -251,80 +255,77 @@ test('TC23.8: Kiểm tra số điện thoại quá dài', async ({
 });
 
 test('TC23.9: Nhấn cập nhật khi không thay đổi thông tin', async ({
-  page,
-  loggedInUser,
-  userInfoPage,
+page,
+loggedInUser,
+userInfoPage,
 }) => {
-  await userInfoPage.openFromUserMenu();
-  await userInfoPage.openEditProfile();
+await userInfoPage.openFromUserMenu();
+await userInfoPage.openEditProfile();
 
-  const originalName = await userInfoPage.editNameInput.inputValue();
-  const originalPhone = await userInfoPage.editPhoneInput.inputValue();
+const originalName = await userInfoPage.editNameInput.inputValue();
+const originalPhone = await userInfoPage.editPhoneInput.inputValue();
 
-  await userInfoPage.updateProfileBtn.click();
+await userInfoPage.updateProfileBtn.click();
 
-  await expect(userInfoPage.editProfileBtn).toBeVisible();
+// Xác nhận form đã đóng nếu đây là hành vi thực tế của website.
+await expect(userInfoPage.editNameInput).toBeHidden();
 
-  console.log('Họ tên ban đầu:', originalName);
-  console.log('Số điện thoại ban đầu:', originalPhone);
+await userInfoPage.openEditProfile();
+
+await expect(userInfoPage.editNameInput).toHaveValue(originalName);
+await expect(userInfoPage.editPhoneInput).toHaveValue(originalPhone);
+
+console.log('Họ tên ban đầu:', originalName);
+console.log('Số điện thoại ban đầu:', originalPhone);
 });
 
 test('TC23.10: Kiểm tra thông tin sau khi tải lại trang', async ({
-  page,
-  loggedInUser,
-  userInfoPage,
+page,
+loggedInUser,
+userInfoPage,
 }) => {
-  await userInfoPage.openFromUserMenu();
-  await userInfoPage.openEditProfile();
+await userInfoPage.openFromUserMenu();
+await userInfoPage.openEditProfile();
 
-  const newName = 'Trần Minh Khang';
+const newName = 'Tran Minh Khang';
+const newPhone = '0987654321';
 
-  await userInfoPage.editNameInput.fill(newName);
-  await userInfoPage.updateProfileBtn.click();
+await userInfoPage.editNameInput.fill(newName);
+await userInfoPage.editPhoneInput.fill(newPhone);
+await userInfoPage.updateProfileBtn.click();
 
-  // Xác nhận tên mới hiển thị sau khi cập nhật
-  await expect(
-    page.getByText(newName, { exact: true }).first()
-  ).toBeVisible();
+await expect(userInfoPage.editNameInput).toBeHidden();
 
-  // Tải lại trang để kiểm tra dữ liệu đã được lưu
-  await page.reload();
+await page.reload();
 
-  await expect(userInfoPage.bookedRoomsHeading).toBeVisible();
+await expect(userInfoPage.bookedRoomsHeading).toBeVisible();
 
-  await expect(
-    page.getByText(newName, { exact: true }).first()
-  ).toBeVisible();
+await userInfoPage.openEditProfile();
+
+await expect(userInfoPage.editNameInput).toHaveValue(newName);
+await expect(userInfoPage.editPhoneInput).toHaveValue(newPhone);
 });
 
-test('TC24: Kiểm tra upload ảnh đại diện thành công', async ({
+test('TC24: Kiểm tra upload ảnh đại diện', async ({
   page,
-  loggedInUser,
   userInfoPage,
 }) => {
-  // Bước 1: Mở trang hồ sơ sau khi đăng nhập
   await userInfoPage.openFromUserMenu();
 
-  // Bước 2: Ghi nhận ảnh đại diện hiện tại nếu có
   const avatar = userInfoPage.avatarImage;
+  const oldAvatarSrc = await avatar.getAttribute('src');
 
-  const oldAvatarSrc = await avatar.getAttribute('src').catch(() => null);
-
-  // Bước 3: Kiểm tra nút cập nhật ảnh
-  await expect(userInfoPage.updateAvatarBtn).toBeVisible();
-
-  // Bước 4: Chuẩn bị ảnh thử nghiệm
   const imagePath = path.resolve(
     process.cwd(),
     'test-data',
     'avatar.jpg'
   );
 
-  // Bước 5: Chọn ảnh
+  // Chọn ảnh đại diện
   await userInfoPage.uploadAvatar(imagePath);
 
-  // Bước 6: Xác nhận input đã nhận file
-  const fileInput = page.locator('input[type="file"]');
+  // Xác nhận input file đã nhận ảnh
+  const fileInput = page.locator('input[type="file"]').first();
 
   await expect.poll(async () => {
     return fileInput.evaluate(
@@ -332,9 +333,10 @@ test('TC24: Kiểm tra upload ảnh đại diện thành công', async ({
     );
   }).toBe(1);
 
-  console.log('Đã chọn file ảnh avatar.jpg');
+  console.log('Đã chọn file ảnh:', imagePath);
+  console.log('Avatar src trước upload:', oldAvatarSrc);
 
-  // Bước 7: Ghi nhận thông báo sau khi upload
+  // Ghi nhận thông báo thực tế từ giao diện
   await page.waitForTimeout(1500);
 
   console.log(
@@ -344,7 +346,6 @@ test('TC24: Kiểm tra upload ảnh đại diện thành công', async ({
     ).allTextContents()
   );
 
-  console.log('Avatar src cũ:', oldAvatarSrc);
   console.log(
     'Avatar src hiện tại:',
     await avatar.getAttribute('src').catch(() => null)
@@ -380,4 +381,4 @@ test('TC25: Kiểm tra chức năng đổi mật khẩu', async ({
 });
 
 
-});
+
