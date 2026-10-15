@@ -7,18 +7,16 @@ export default defineConfig({
   expect: {
     timeout: TimeOutConstant.EXPECT_TIMEOUT,
   },
-  fullyParallel: false,
-  timeout: 60_000,
+  fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: 1,
-
+  workers: process.env.CI ? 2 : undefined,
   reporter: [['html', { open: 'never' }], ['list']],
   use: {
     baseURL: 'https://demo5.cybersoft.edu.vn/',
     actionTimeout: TimeOutConstant.ACTION_TIMEOUT,
     navigationTimeout: TimeOutConstant.NAVIGATION_TIMEOUT,
-    trace: 'retain-on-failure',
+    trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
