@@ -43,10 +43,11 @@ test.describe('User Profile', () => {
 
     await userInfoPage.openEditProfile();
     const originalPhone = await userInfoPage.editPhoneInput.inputValue();
-    await userInfoPage.updateProfile({ name: newName });
+    const saved = await userInfoPage.updateProfileAndWait({ name: newName });
 
+    expect(saved).toMatchObject({ name: newName, phone: originalPhone });
     await expect(userInfoPage.editProfileDialog).toBeHidden();
-    await userInfoPage.openEditProfile();
+    await userInfoPage.reloadAndOpenEditProfile();
     await expect(userInfoPage.editNameInput).toHaveValue(newName);
     await expect(userInfoPage.editPhoneInput).toHaveValue(originalPhone);
   });
@@ -56,10 +57,11 @@ test.describe('User Profile', () => {
 
     await userInfoPage.openEditProfile();
     const originalName = await userInfoPage.editNameInput.inputValue();
-    await userInfoPage.updateProfile({ phone: newPhone });
+    const saved = await userInfoPage.updateProfileAndWait({ phone: newPhone });
 
+    expect(saved).toMatchObject({ name: originalName, phone: newPhone });
     await expect(userInfoPage.editProfileDialog).toBeHidden();
-    await userInfoPage.openEditProfile();
+    await userInfoPage.reloadAndOpenEditProfile();
     await expect(userInfoPage.editNameInput).toHaveValue(originalName);
     await expect(userInfoPage.editPhoneInput).toHaveValue(newPhone);
   });
@@ -109,25 +111,24 @@ test.describe('User Profile', () => {
     const originalName = await userInfoPage.editNameInput.inputValue();
     const originalPhone = await userInfoPage.editPhoneInput.inputValue();
 
-    await userInfoPage.submitProfile();
-    await expect(userInfoPage.editProfileDialog).toBeHidden();
+    const saved = await userInfoPage.updateProfileAndWait({});
 
-    await userInfoPage.openEditProfile();
+    expect(saved).toMatchObject({ name: originalName, phone: originalPhone });
+    await expect(userInfoPage.editProfileDialog).toBeHidden();
+    await userInfoPage.reloadAndOpenEditProfile();
     await expect(userInfoPage.editNameInput).toHaveValue(originalName);
     await expect(userInfoPage.editPhoneInput).toHaveValue(originalPhone);
   });
 
-  test('TC23.10: Thông tin vẫn được lưu sau khi tải lại trang', async ({ page, userInfoPage }) => {
+  test('TC23.10: Thông tin vẫn được lưu sau khi tải lại trang', async ({ userInfoPage }) => {
     const newName = 'Tran Minh Khang';
     const newPhone = '0987654321';
 
     await userInfoPage.openEditProfile();
-    await userInfoPage.updateProfile({ name: newName, phone: newPhone });
+    await userInfoPage.updateProfileAndWait({ name: newName, phone: newPhone });
     await expect(userInfoPage.editProfileDialog).toBeHidden();
 
-    await page.reload();
-    await expect(userInfoPage.bookedRoomsHeading).toBeVisible();
-    await userInfoPage.openEditProfile();
+    await userInfoPage.reloadAndOpenEditProfile();
     await expect(userInfoPage.editNameInput).toHaveValue(newName);
     await expect(userInfoPage.editPhoneInput).toHaveValue(newPhone);
   });

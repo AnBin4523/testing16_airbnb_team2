@@ -77,6 +77,24 @@ export class UserInfoPage extends CommonPage {
     await this.submitProfile();
   }
 
+  // Cập nhật và chờ API lưu xong, trả về dữ liệu user mà server đã lưu
+  async updateProfileAndWait(data: { name?: string; phone?: string }): Promise<Record<string, any>> {
+    const saved = this.page.waitForResponse(
+      (res) => /\/api\/users\/\d+$/.test(res.url()) && res.request().method() === 'PUT'
+    );
+    await this.updateProfile(data);
+    const response = await saved;
+    if (!response.ok()) throw new Error(`Cập nhật hồ sơ thất bại: ${response.status()}`);
+    return (await response.json()).content;
+  }
+
+  // Form giữ dữ liệu cũ nếu mở lại ngay sau khi cập nhật, nên tải lại trang để đọc dữ liệu đã lưu
+  async reloadAndOpenEditProfile(): Promise<void> {
+    await this.page.reload();
+    await this.waitForVisible(this.bookedRoomsHeading);
+    await this.openEditProfile();
+  }
+
   async uploadAvatar(filePath: string): Promise<void> {
     await this.click(this.updateAvatarBtn);
     await this.avatarFileInput.setInputFiles(filePath);
